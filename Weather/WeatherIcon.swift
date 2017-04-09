@@ -12,8 +12,8 @@ import UIKit
 enum WeatherIcon: String {
     case ClearDay = "clear-day"
     case ClearNight = "clear-night"
-    case CloudyDay = "cloudy-day"
-    case CloudyNight = "cloudy-night"
+    case CloudyDay = "partly-cloudy-day"
+    case CloudyNight = "partly-cloudy-night"
     case Cloudy = "cloudy"
     case Fog = "fog"
     case Rain = "rain"

@@ -17,22 +17,30 @@ typealias JSONTaskCompletion = (JSON?, HTTPURLResponse?, Error?) -> Void
 typealias JSONTask = URLSessionDataTask
 
 enum APIResult<T>{
+    
     case success(T)
     case failure(Error)
 }
+
+protocol JSONDecodable {
+    
+    init?(JSON : [String: AnyObject])
+}
+
+protocol Endpoint {
+    var baseURL: URL { get }
+    var path: String { get }
+    var request: URLRequest { get }
+}
+
 protocol APIClient {
     var configuration: URLSessionConfiguration { get }
     var session: URLSession { get }
-    
-    init(config: URLSessionConfiguration)
-    
-    func JSONTaskWithRequest(_ request: URLRequest, completion: JSONTaskCompletion) -> JSONTask
-    
-    func fetch<T>(_ request: URLRequest, parse: (JSON) -> T?, completion: (APIResult<T>) -> Void)
 }
 
 extension APIClient {
-    func JSONTaskWithRequest(_ request: URLRequest, completion: @escaping JSONTaskCompletion) -> JSONTask {
+    
+    func JSONTaskWithRequest(with request: URLRequest, completion: @escaping JSONTaskCompletion) -> JSONTask {
         
         //creating data task
         let task = session.dataTask(with: request) { data, response, error in
@@ -72,10 +80,10 @@ extension APIClient {
         return task
 }
     
-    func fetch<T>(_ request: URLRequest, parse: (JSON) -> T?, completion: (APIResult<T>) -> Void) {
+    func fetch<T>(with request: URLRequest, parse: @escaping (JSON) -> T?, completion: @escaping (APIResult<T>) -> Void) {
         
-        let task = JSONTaskWithRequest(request) { json,response, error in
-            
+        let task = JSONTaskWithRequest(with :request) { json,response, error in
+            DispatchQueue.main.async {
             guard let json = json else {
                 if let error = error {
                     completion(.failure(error))
@@ -92,6 +100,7 @@ extension APIClient {
                 completion(.failure(error))
             }
             
+        }
         }
         task.resume()
     }
